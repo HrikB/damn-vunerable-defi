@@ -1,0 +1,2 @@
+Contract logic based on current balances of the contract can be controlled by
+external players because those balances can be altered.
