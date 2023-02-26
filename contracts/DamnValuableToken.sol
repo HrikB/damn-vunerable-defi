@@ -11,4 +11,16 @@ contract DamnValuableToken is ERC20 {
     constructor() ERC20("DamnValuableToken", "DVT", 18) {
         _mint(msg.sender, type(uint256).max);
     }
+
+    function approve(address spender, uint256 amount)
+        public
+        override
+        returns (bool)
+    {
+        allowance[msg.sender][spender] = amount;
+
+        emit Approval(msg.sender, spender, amount);
+
+        return true;
+    }
 }
