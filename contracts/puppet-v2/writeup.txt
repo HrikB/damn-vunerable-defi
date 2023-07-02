@@ -1,0 +1,1 @@
+Uses spot price instead of TWAP
