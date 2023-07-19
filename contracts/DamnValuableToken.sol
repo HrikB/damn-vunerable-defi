@@ -12,11 +12,7 @@ contract DamnValuableToken is ERC20 {
         _mint(msg.sender, type(uint256).max);
     }
 
-    function approve(address spender, uint256 amount)
-        public
-        override
-        returns (bool)
-    {
+    function approve(address spender, uint256 amount) public override returns (bool) {
         allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);

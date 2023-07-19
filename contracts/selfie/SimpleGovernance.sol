@@ -19,17 +19,14 @@ contract SimpleGovernance is ISimpleGovernance {
         _actionCounter = 1;
     }
 
-    function queueAction(
-        address target,
-        uint128 value,
-        bytes calldata data
-    ) external returns (uint256 actionId) {
+    function queueAction(address target, uint128 value, bytes calldata data) external returns (uint256 actionId) {
         if (!_hasEnoughVotes(msg.sender)) revert NotEnoughVotes(msg.sender);
 
         if (target == address(this)) revert InvalidTarget();
 
-        if (data.length > 0 && target.code.length == 0)
+        if (data.length > 0 && target.code.length == 0) {
             revert TargetMustHaveCode();
+        }
 
         actionId = _actionCounter;
 
@@ -48,11 +45,7 @@ contract SimpleGovernance is ISimpleGovernance {
         emit ActionQueued(actionId, msg.sender);
     }
 
-    function executeAction(uint256 actionId)
-        external
-        payable
-        returns (bytes memory)
-    {
+    function executeAction(uint256 actionId) external payable returns (bytes memory) {
         if (!_canBeExecuted(actionId)) revert CannotExecute(actionId);
 
         GovernanceAction storage actionToExecute = _actions[actionId];
@@ -60,9 +53,8 @@ contract SimpleGovernance is ISimpleGovernance {
 
         emit ActionExecuted(actionId, msg.sender);
 
-        (bool success, bytes memory returndata) = actionToExecute.target.call{
-            value: actionToExecute.value
-        }(actionToExecute.data);
+        (bool success, bytes memory returndata) =
+            actionToExecute.target.call{value: actionToExecute.value}(actionToExecute.data);
         if (!success) {
             if (returndata.length > 0) {
                 assembly {
@@ -84,11 +76,7 @@ contract SimpleGovernance is ISimpleGovernance {
         return address(_governanceToken);
     }
 
-    function getAction(uint256 actionId)
-        external
-        view
-        returns (GovernanceAction memory)
-    {
+    function getAction(uint256 actionId) external view returns (GovernanceAction memory) {
         return _actions[actionId];
     }
 
@@ -104,24 +92,22 @@ contract SimpleGovernance is ISimpleGovernance {
     function _canBeExecuted(uint256 actionId) private view returns (bool) {
         GovernanceAction memory actionToExecute = _actions[actionId];
 
-        if (actionToExecute.proposedAt == 0)
+        if (actionToExecute.proposedAt == 0) {
             // early exit
             return false;
+        }
 
         uint64 timeDelta;
         unchecked {
             timeDelta = uint64(block.timestamp) - actionToExecute.proposedAt;
         }
 
-        return
-            actionToExecute.executedAt == 0 &&
-            timeDelta >= ACTION_DELAY_IN_SECONDS;
+        return actionToExecute.executedAt == 0 && timeDelta >= ACTION_DELAY_IN_SECONDS;
     }
 
     function _hasEnoughVotes(address who) private view returns (bool) {
         uint256 balance = _governanceToken.getBalanceAtLastSnapshot(who);
-        uint256 halfTotalSupply = _governanceToken
-            .getTotalSupplyAtLastSnapshot() / 2;
+        uint256 halfTotalSupply = _governanceToken.getTotalSupplyAtLastSnapshot() / 2;
         return balance > halfTotalSupply;
     }
 }

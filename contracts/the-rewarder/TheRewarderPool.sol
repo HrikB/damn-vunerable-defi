@@ -59,12 +59,7 @@ contract TheRewarderPool {
         accountingToken.mint(msg.sender, amount);
         distributeRewards();
 
-        SafeTransferLib.safeTransferFrom(
-            liquidityToken,
-            msg.sender,
-            address(this),
-            amount
-        );
+        SafeTransferLib.safeTransferFrom(liquidityToken, msg.sender, address(this), amount);
     }
 
     function withdraw(uint256 amount) external {
@@ -77,13 +72,8 @@ contract TheRewarderPool {
             _recordSnapshot();
         }
 
-        uint256 totalDeposits = accountingToken.totalSupplyAt(
-            lastSnapshotIdForRewards
-        );
-        uint256 amountDeposited = accountingToken.balanceOfAt(
-            msg.sender,
-            lastSnapshotIdForRewards
-        );
+        uint256 totalDeposits = accountingToken.totalSupplyAt(lastSnapshotIdForRewards);
+        uint256 amountDeposited = accountingToken.balanceOfAt(msg.sender, lastSnapshotIdForRewards);
 
         if (amountDeposited > 0 && totalDeposits > 0) {
             rewards = amountDeposited.mulDiv(REWARDS, totalDeposits);
@@ -103,15 +93,13 @@ contract TheRewarderPool {
     }
 
     function _hasRetrievedReward(address account) private view returns (bool) {
-        return (lastRewardTimestamps[account] >=
-            lastRecordedSnapshotTimestamp &&
-            lastRewardTimestamps[account] <=
-            lastRecordedSnapshotTimestamp + REWARDS_ROUND_MIN_DURATION);
+        return (
+            lastRewardTimestamps[account] >= lastRecordedSnapshotTimestamp
+                && lastRewardTimestamps[account] <= lastRecordedSnapshotTimestamp + REWARDS_ROUND_MIN_DURATION
+        );
     }
 
     function isNewRewardsRound() public view returns (bool) {
-        return
-            block.timestamp >=
-            lastRecordedSnapshotTimestamp + REWARDS_ROUND_MIN_DURATION;
+        return block.timestamp >= lastRecordedSnapshotTimestamp + REWARDS_ROUND_MIN_DURATION;
     }
 }
